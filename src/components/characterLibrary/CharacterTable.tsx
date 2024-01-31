@@ -4,9 +4,10 @@ import { deleteCharacter } from '@/services/character'
 import { setCharacterEditor } from '@/state/characterEditorSlice'
 import { setAlert, setDialog } from '@/state/feedbackSlice'
 import { type CharacterDatabaseData } from '@/types/character'
+import { exportCharacterAsPng } from '@/utilities/characterUtilities'
 import { faPencil, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { IconButton, Tooltip } from '@mui/material'
+import { Button, IconButton, Tooltip } from '@mui/material'
 import { DataGrid, getGridStringOperators, type GridActionsColDef, type GridColDef, type GridFilterModel, type GridPaginationModel, type GridRenderCellParams, type GridSortModel } from '@mui/x-data-grid'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useState, type FC } from 'react'
@@ -229,6 +230,7 @@ const CharacterTable: FC = () => {
         minHeight: 'calc(75vh)'
       }}
     >
+      
       <DataGrid
         initialState={{
           columns: {
@@ -262,6 +264,29 @@ const CharacterTable: FC = () => {
         onSortModelChange={setSortModel}
         autoPageSize={true}
       />
+      <Button variant="contained" color="primary"  onClick={() => {
+          alert('hello world')
+          // for each charcter, export v2png
+          console.log('characters', characters)
+          characters?.map((v2Character) => {
+
+            const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
+            console.log(PNGUrl)
+            // const exportName = getCharacterExportName(characterCardExportNameTemplate, {
+            //   name: characterEditor.name,
+            //   spec: 'V2',
+            //   id: characterEditor.id,
+            //   creator: characterEditor.creator,
+            //   version: characterEditor.character_version
+            // })
+            // handleDownload(PNGUrl, `${exportName}.png`)
+            // exportCharacterAsPng(char)            
+          })
+
+              // dispatch(setExampleCharacterBookEditor())
+            }}>
+        Upload
+      </Button>
     </div>
   )
 }
