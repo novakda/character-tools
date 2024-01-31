@@ -55,7 +55,7 @@ const CharacterLibrary: FC = () => {
             <ManageLibrary />
           </TabPanel>
           <TabPanel value="BulkExport">
-            <ManageLibrary />
+          <CharacterTable />
           </TabPanel>
         </div>
       </TabContext>
