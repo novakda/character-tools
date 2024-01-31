@@ -4,7 +4,7 @@ import { deleteCharacter } from '@/services/character'
 import { setCharacterEditor } from '@/state/characterEditorSlice'
 import { setAlert, setDialog } from '@/state/feedbackSlice'
 import { type CharacterDatabaseData } from '@/types/character'
-import { exportCharacterAsPng } from '@/utilities/characterUtilities'
+import { exportCharacterAsPng, getCharacterExportName } from '@/utilities/characterUtilities'
 import { faPencil, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, IconButton, Tooltip } from '@mui/material'
@@ -272,13 +272,14 @@ const CharacterTable: FC = () => {
 
             const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
             console.log(PNGUrl)
-            // const exportName = getCharacterExportName(characterCardExportNameTemplate, {
-            //   name: characterEditor.name,
-            //   spec: 'V2',
-            //   id: characterEditor.id,
-            //   creator: characterEditor.creator,
-            //   version: characterEditor.character_version
-            // })
+            const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
+              name: v2Character.name,
+              spec: 'V2',
+              id: v2Character.id,
+              creator: v2Character.creator,
+              version: v2Character.character_version
+            })
+            console.log(exportName)
             // handleDownload(PNGUrl, `${exportName}.png`)
             // exportCharacterAsPng(char)            
           })
