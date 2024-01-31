@@ -36,6 +36,7 @@ const CharacterLibrary: FC = () => {
             <Tab icon={<FontAwesomeIcon icon={faUsersBetweenLines}/>} label="Character Library" value="Library" />
             <Tab icon={<FontAwesomeIcon icon={faFileImport}/>} label="Import Character" value="Import" />
             <Tab icon={<FontAwesomeIcon icon={faUsersBetweenLines}/>} label="Manage Library" value="Manage" />
+            <Tab icon={<FontAwesomeIcon icon={faUsersBetweenLines}/>} label="Bulk Export" value="BulkExport" />
           </TabList>
         </Box>
 
@@ -51,6 +52,9 @@ const CharacterLibrary: FC = () => {
             <ImportCharacter />
           </TabPanel>
           <TabPanel value="Manage">
+            <ManageLibrary />
+          </TabPanel>
+          <TabPanel value="BulkExport">
             <ManageLibrary />
           </TabPanel>
         </div>
