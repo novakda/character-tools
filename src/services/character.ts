@@ -25,6 +25,22 @@ export const deleteCharacter = async (id: string): Promise<void> => {
   await dataBase.characters.where('id').equals(id).delete()
 }
 
+export const deleteCharacterMulti = async (arrIds: string[]): Promise<void> => {
+
+  dataBase.transaction('rw', dataBase.characters, function* () {
+    var deleteCount = yield dataBase.characters
+      .where('id')
+      .anyOf(arrIds)
+      .delete()
+
+    console.log ("Successfully deleted " + deleteCount + " items");
+}).catch (e => {
+    console.error (e);
+});
+
+  // await dataBase.characters.where('id').anyOf(arrIds).delete()
+}
+
 export const deleteAllCharacters = async (): Promise<void> => {
   await dataBase.characters.clear()
 }

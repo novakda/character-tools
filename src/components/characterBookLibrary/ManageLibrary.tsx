@@ -75,8 +75,11 @@ const ManageLibrary: FC = () => {
         onClick={() => {
           exportCharacterCollection()
             .then((data) => {
+              let out = "[" + data.map(el => JSON.stringify(el)).join(",") + "]";
               const blob = new Blob([JSON.stringify(data)], { type: 'application/json' })
+              alert(blob.size)
               const url = URL.createObjectURL(blob)
+              
               const link = document.createElement('a')
               link.download = 'characterLibrary.json'
               link.href = url

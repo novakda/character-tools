@@ -1,6 +1,6 @@
 import useAppDispatch from '@/hooks/useAppDispatch'
 import { dataBase } from '@/lib/dexie'
-import { deleteCharacter } from '@/services/character'
+import { deleteCharacter, deleteCharacterMulti } from '@/services/character'
 import { setCharacterEditor } from '@/state/characterEditorSlice'
 import { setAlert, setDialog } from '@/state/feedbackSlice'
 import { type CharacterDatabaseData } from '@/types/character'
@@ -8,7 +8,7 @@ import { exportCharacterAsPng, getCharacterExportName } from '@/utilities/charac
 import { faPencil, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, IconButton, Tooltip } from '@mui/material'
-import { DataGrid, getGridStringOperators, type GridActionsColDef, type GridColDef, type GridFilterModel, type GridPaginationModel, type GridRenderCellParams, type GridSortModel } from '@mui/x-data-grid'
+import { DataGrid, getGridStringOperators, GridDeleteIcon, type GridActionsColDef, type GridColDef, type GridFilterModel, type GridPaginationModel, type GridRenderCellParams, type GridSortModel, GridRowSelectionModel } from '@mui/x-data-grid'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useState, type FC } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -38,11 +38,14 @@ const CharacterTable: FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 0 })
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 1, pageSize: 100 })
   const [totalCharacters, setTotalCharacters] = useState(0)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
+  const [rowSelectionModel, setRowSelectionModel] =
+    useState<GridRowSelectionModel>([]);
 
+  // requeries the entire database when anything changes
   const characters = useLiveQuery(async () => {
     setIsLoading(true)
     const characters = dataBase.characters
@@ -110,7 +113,7 @@ const CharacterTable: FC = () => {
           actions: [
             {
               label: 'Cancel',
-              onClick: () => {},
+              onClick: () => { },
               severity: 'inherit'
             },
             {
@@ -135,7 +138,7 @@ const CharacterTable: FC = () => {
           actions: [
             {
               label: 'Cancel',
-              onClick: () => {},
+              onClick: () => { },
               severity: 'inherit'
             },
             {
@@ -181,7 +184,7 @@ const CharacterTable: FC = () => {
           actions: [
             {
               label: 'Cancel',
-              onClick: () => {},
+              onClick: () => { },
               severity: 'inherit'
             },
             {
@@ -207,6 +210,29 @@ const CharacterTable: FC = () => {
   const columns: Array<GridColDef<CharacterDatabaseData>> = [
     { field: 'actions', type: 'actions', hideable: false, sortable: false, minWidth: 120, getActions: renderActions, filterable: false },
     { field: 'id', headerName: 'ID', width: 150, sortable: false, filterable: false },
+    {
+      field: "delete",
+      width: 75,
+      sortable: false,
+      disableColumnMenu: true,
+      renderHeader: () => {
+        return (
+          <IconButton
+            onClick={() => {              
+              const selectedIDs = new Set(rowSelectionModel);
+              // you can call an API to delete the selected IDs
+              // and get the latest results after the deletion
+              // then call setRows() to update the data locally here
+              // setRows((r) => r.filter((x) => !selectedIDs.has(x.id)));
+              alert(Array.from(selectedIDs))
+              deleteCharacterMulti(Array.from(selectedIDs))
+            }}
+          >
+            <GridDeleteIcon />
+          </IconButton>
+        );
+      },
+    },
     { field: 'image', headerName: 'Image', width: 75, sortable: false, renderCell: renderImage, filterable: false },
     { field: 'name', headerName: 'Name', width: 200, filterOperators },
     { field: 'description', headerName: 'Description', flex: 1, sortable: false, filterOperators },
@@ -230,7 +256,7 @@ const CharacterTable: FC = () => {
         minHeight: 'calc(75vh)'
       }}
     >
-      
+
       <DataGrid
         initialState={{
           columns: {
@@ -245,14 +271,18 @@ const CharacterTable: FC = () => {
               creator_notes: false,
               system_prompt: false,
               post_history_instructions: false
-            }
-          }
+            },
+          },
+          pagination: {
+            paginationModel: paginationModel // Set desired initial page size
+          },
         }}
         loading={isLoading}
         rows={characters ?? []}
         rowCount={totalCharacters}
         columns={columns}
-        rowSelection={false}
+        // rowSelection={false}
+        pageSizeOptions={[5, 10, 25, 50, 100]}
         paginationMode='server'
         paginationModel={paginationModel}
         onPaginationModelChange={setPaginationModel}
@@ -262,30 +292,37 @@ const CharacterTable: FC = () => {
         sortingMode='server'
         sortModel={sortModel}
         onSortModelChange={setSortModel}
-        autoPageSize={true}
+        checkboxSelection={true}
+        
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelectionModel(newRowSelectionModel)          
+        }}
+          
+        rowSelectionModel={rowSelectionModel}
+      // autoPageSize={true}
       />
-      <Button variant="contained" color="primary"  onClick={() => {
-          alert('hello world')
-          // for each charcter, export v2png
-          console.log('characters', characters)
-          characters?.map((v2Character) => {
+      <Button variant="contained" color="primary" onClick={() => {
+        alert('hello world')
+        // for each charcter, export v2png
+        console.log('characters', characters)
+        characters?.map((v2Character) => {
 
-            const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
-            console.log(PNGUrl)
-            const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
-              name: v2Character.name,
-              spec: 'V2',
-              id: v2Character.id,
-              creator: v2Character.creator,
-              version: v2Character.character_version
-            })
-            console.log(exportName)
-            // handleDownload(PNGUrl, `${exportName}.png`)
-            // exportCharacterAsPng(char)            
+          const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
+          console.log(PNGUrl)
+          const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
+            name: v2Character.name,
+            spec: 'V2',
+            id: v2Character.id,
+            creator: v2Character.creator,
+            version: v2Character.character_version
           })
+          console.log(exportName)
+          // handleDownload(PNGUrl, `${exportName}.png`)
+          // exportCharacterAsPng(char)            
+        })
 
-              // dispatch(setExampleCharacterBookEditor())
-            }}>
+        // dispatch(setExampleCharacterBookEditor())
+      }}>
         Upload
       </Button>
     </div>
