@@ -46,14 +46,12 @@ export const deleteAllCharacters = async (): Promise<void> => {
 }
 
 
+export const processCharactersLoop = async (fn: (arg0: CharacterDatabaseData) => any): Promise<void> => {
 
-export const exprtCharactersLoop = async (): Promise<object> => {
-  const blob = await dataBase.export({
-    filter (table) {
-      return table === 'characters'
-    }
-  })
-  return blob
+  const count = await (dataBase.characters.count())
+    alert (count)
+  await dataBase.characters.each(async (char) => fn(char))
+
 }
 
 export const exportCharacterCollection = async (): Promise<Blob> => {

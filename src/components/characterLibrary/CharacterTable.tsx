@@ -38,7 +38,7 @@ const CharacterTable: FC = () => {
   const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const [isLoading, setIsLoading] = useState(false)
-  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 1, pageSize: 100 })
+  const [paginationModel, setPaginationModel] = useState<GridPaginationModel>({ page: 0, pageSize: 100 })
   const [totalCharacters, setTotalCharacters] = useState(0)
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
@@ -218,7 +218,7 @@ const CharacterTable: FC = () => {
       renderHeader: () => {
         return (
           <IconButton
-            onClick={() => {              
+            onClick={() => {
               const selectedIDs = new Set(rowSelectionModel);
               // you can call an API to delete the selected IDs
               // and get the latest results after the deletion
@@ -248,6 +248,127 @@ const CharacterTable: FC = () => {
     { field: 'system_prompt', headerName: 'System Prompt', flex: 1, sortable: false, filterOperators },
     { field: 'post_history_instructions', headerName: 'Post History Instructions', flex: 1, sortable: false, filterOperators }
   ]
+
+  const handleDownload = (url: string, filename: string): void => {
+    const link = document.createElement('a')
+    link.href = url
+    link.download = filename
+    link.click()
+  }
+
+  async function tryMakeDownload(v2Character) {
+
+    console.log('TRYING', v2Character.name)
+
+
+
+    const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
+      name: v2Character.name,
+      spec: 'V2',
+      id: v2Character.id,
+      creator: v2Character.creator,
+      version: v2Character.character_version
+    })
+
+    try {
+
+      if (!v2Character.image) {
+        // exportC`haracterAsJson(v2Character)
+      }
+      else { }
+
+
+      const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
+      handleDownload(PNGUrl, `${exportName}.png`)
+    }
+    catch (e) {
+      console.error(v2Character.name, e)
+      console.error('IMAGE IS', v2Character.image)
+    }
+
+  }
+
+  async function getBatchDownloadFolder(): Promise<any> {
+    const directoryHandle = await window.showDirectoryPicker();
+    console.log(directoryHandle)
+    
+    // Check if permission to write was granted
+    const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' });
+    if (permissions !== 'granted') {
+      throw new Error('Permission to write to directory not granted');
+    }
+    
+    return directoryHandle
+
+  }
+
+  async function savePngFile(dirHandle, fileName, blob) {
+     // Create a new file in the selected directory
+     const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+
+     // Create a writable stream for the new file
+     const writableStream = await fileHandle.createWritable();
+ 
+     // Write the Blob to the file
+     await writableStream.write(blob);
+ 
+     // Close the stream
+     await writableStream.close();
+  }
+
+  async function exportPageCharacters() {
+
+    alert(characters?.length)
+
+    const hFolder = await getBatchDownloadFolder() 
+
+    characters?.map(async (v2Character) => {
+
+      const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
+      const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
+        name: v2Character.name,
+        spec: 'V2',
+        id: v2Character.id,
+        creator: v2Character.creator,
+        version: v2Character.character_version
+      })
+      console.log(exportName)
+      // await savePngFile(hFolder, `${exportName}.png`, PNGUrl)      
+      // exportCharacterAsPng(char)            
+    })
+
+
+    // try {
+    //   const directoryHandle = await window.showDirectoryPicker();
+    //   console.log(directoryHandle)
+    //   // Create a dummy PNG Blob
+    //   const blob = new Blob(['Hello, world!'], { type: 'image/png' });
+    //   // Prompt user to select a directory
+    
+    //   // Check if permission to write was granted
+    //   const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' });
+    //   if (permissions !== 'granted') {
+    //     throw new Error('Permission to write to directory not granted');
+    //   }
+
+    //   // Create a new file in the selected directory
+    //   const fileHandle = await directoryHandle.getFileHandle('foobar.png', { create: true });
+
+    //   // Create a writable stream for the new file
+    //   const writableStream = await fileHandle.createWritable();
+
+    //   // Write the Blob to the file
+    //   await writableStream.write(blob);
+
+    //   // Close the stream
+    //   await writableStream.close();
+
+    // } catch (error) {
+    //   alert(`${error.name}: ${error.message}`);
+    // }
+
+
+  }
 
   return (
     <div
@@ -293,37 +414,20 @@ const CharacterTable: FC = () => {
         sortModel={sortModel}
         onSortModelChange={setSortModel}
         checkboxSelection={true}
-        
+
         onRowSelectionModelChange={(newRowSelectionModel) => {
-          setRowSelectionModel(newRowSelectionModel)          
+          setRowSelectionModel(newRowSelectionModel)
         }}
-          
+
         rowSelectionModel={rowSelectionModel}
       // autoPageSize={true}
       />
-      <Button variant="contained" color="primary" onClick={() => {
-        alert('hello world')
-        // for each charcter, export v2png
-        console.log('characters', characters)
-        characters?.map((v2Character) => {
-
-          const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
-          console.log(PNGUrl)
-          const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
-            name: v2Character.name,
-            spec: 'V2',
-            id: v2Character.id,
-            creator: v2Character.creator,
-            version: v2Character.character_version
-          })
-          console.log(exportName)
-          // handleDownload(PNGUrl, `${exportName}.png`)
-          // exportCharacterAsPng(char)            
-        })
-
-        // dispatch(setExampleCharacterBookEditor())
+      <Button variant="contained" color="primary" onClick={async () => {
+        alert('export chars on page')
+        await exportPageCharacters()
+        return
       }}>
-        Upload
+        Uploadxxxxxxxxxxxxx
       </Button>
     </div>
   )

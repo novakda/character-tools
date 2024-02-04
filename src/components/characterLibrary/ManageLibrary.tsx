@@ -1,7 +1,8 @@
 import Drop from '@/components/ui/Drop'
 import useAppDispatch from '@/hooks/useAppDispatch'
-import { deleteAllCharacters, exportCharacterCollection, importCharacterCollection, getAllCharacters } from '@/services/character'
+import { deleteAllCharacters, exportCharacterCollection, importCharacterCollection, getAllCharacters, processCharactersLoop } from '@/services/character'
 import { setAlert, setDialog } from '@/state/feedbackSlice'
+import { exportCharacterAsPng, getCharacterExportName } from '@/utilities/characterUtilities'
 import { faFileImport } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Box, Button, Typography } from '@mui/material'
@@ -27,7 +28,7 @@ const ManageLibrary: FC = () => {
               {
                 label: 'Cancel',
                 severity: 'inherit',
-                onClick: () => {}
+                onClick: () => { }
               },
               {
                 label: 'Clear library',
@@ -73,21 +74,30 @@ const ManageLibrary: FC = () => {
         variant="contained"
         onClick={async () => {
 
-          if( !("showSaveFilePicker" in window) ) {
-            throw new Error( "unsupported browser" );
-          }
-          
-          const handle = await showSaveFilePicker();
-          const filestream = await handle.createWritable();
-          const writer = await filestream.getWriter();
-          const chars = await getAllCharacters()
+          // if (!("showSaveFilePicker" in window)) {
+          //   throw new Error("unsupported browser");
+          // }
 
-          alert(chars.length)
+          // const handle = await showSaveFilePicker();
+          // const filestream = await handle.createWritable();
+          // const writer = await filestream.getWriter();
+          // const chars = await getAllCharacters()
 
-          chars.map(async (char) => await writer.write(JSON.stringify(char)))        
-          
-          writer.close();
-          
+          // alert(chars.length)
+
+          // chars.map(async (char) => await writer.write(JSON.stringify(char)))
+
+          // writer.close();
+
+          await processCharactersLoop((char) => {
+            const json = JSON.stringify(char)
+            const blob = new Blob([json], {type: "application/json"});
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${char.name}.json`
+            a.click()
+          })         
           return;
           exportCharacterCollection()
             .then((Blob) => {
@@ -97,13 +107,13 @@ const ManageLibrary: FC = () => {
               a.download = 'character-library.json'
               a.click()
             })
-            // .catch((error) => {
-            //   dispatch(setAlert({
-            //     title: 'Error while exporting library',
-            //     severity: 'error',
-            //     message: error.message
-            //   }))
-            // })
+          // .catch((error) => {
+          //   dispatch(setAlert({
+          //     title: 'Error while exporting library',
+          //     severity: 'error',
+          //     message: error.message
+          //   }))
+          // })
         }
         }
 
