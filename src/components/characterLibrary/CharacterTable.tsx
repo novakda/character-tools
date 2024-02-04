@@ -8,7 +8,7 @@ import { exportCharacterAsPng, getCharacterExportName } from '@/utilities/charac
 import { faPencil, faPlus, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { Button, IconButton, Tooltip } from '@mui/material'
-import { DataGrid, getGridStringOperators, GridDeleteIcon, type GridActionsColDef, type GridColDef, type GridFilterModel, type GridPaginationModel, type GridRenderCellParams, type GridSortModel, GridRowSelectionModel } from '@mui/x-data-grid'
+import { DataGrid, getGridStringOperators, GridDeleteIcon, type GridActionsColDef, type GridColDef, type GridFilterModel, type GridPaginationModel, type GridRenderCellParams, type GridSortModel, type GridRowSelectionModel } from '@mui/x-data-grid'
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useCallback, useState, type FC } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -43,7 +43,7 @@ const CharacterTable: FC = () => {
   const [filterModel, setFilterModel] = useState<GridFilterModel>({ items: [] })
   const [sortModel, setSortModel] = useState<GridSortModel>([])
   const [rowSelectionModel, setRowSelectionModel] =
-    useState<GridRowSelectionModel>([]);
+    useState<GridRowSelectionModel>([])
 
   // requeries the entire database when anything changes
   const characters = useLiveQuery(async () => {
@@ -219,7 +219,7 @@ const CharacterTable: FC = () => {
         return (
           <IconButton
             onClick={() => {
-              const selectedIDs = new Set(rowSelectionModel);
+              const selectedIDs = new Set(rowSelectionModel)
               // you can call an API to delete the selected IDs
               // and get the latest results after the deletion
               // then call setRows() to update the data locally here
@@ -230,8 +230,8 @@ const CharacterTable: FC = () => {
           >
             <GridDeleteIcon />
           </IconButton>
-        );
-      },
+        )
+      }
     },
     { field: 'image', headerName: 'Image', width: 75, sortable: false, renderCell: renderImage, filterable: false },
     { field: 'name', headerName: 'Name', width: 200, filterOperators },
@@ -256,11 +256,8 @@ const CharacterTable: FC = () => {
     link.click()
   }
 
-  async function tryMakeDownload(v2Character) {
-
+  async function tryMakeDownload (v2Character) {
     console.log('TRYING', v2Character.name)
-
-
 
     const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
       name: v2Character.name,
@@ -271,86 +268,76 @@ const CharacterTable: FC = () => {
     })
 
     try {
-
       if (!v2Character.image) {
         // exportC`haracterAsJson(v2Character)
-      }
-      else { }
-
+      } else { }
 
       const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
       handleDownload(PNGUrl, `${exportName}.png`)
-    }
-    catch (e) {
+    } catch (e) {
       console.error(v2Character.name, e)
       console.error('IMAGE IS', v2Character.image)
     }
-
   }
 
-  async function getBatchDownloadFolder(): Promise<any> {
-    const directoryHandle = await window.showDirectoryPicker();
+  async function getBatchDownloadFolder (): Promise<any> {
+    const directoryHandle = await window.showDirectoryPicker()
     console.log(directoryHandle)
 
     // Check if permission to write was granted
-    const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' });
+    const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' })
     if (permissions !== 'granted') {
-      throw new Error('Permission to write to directory not granted');
+      throw new Error('Permission to write to directory not granted')
     }
 
     return directoryHandle
-
   }
 
-  async function savePngFile(dirHandle, fileName, blob) {
+  async function savePngFile (dirHandle, fileName, blob) {
     // Create a new file in the selected directory
-    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true })
 
     // Create a writable stream for the new file
-    const writableStream = await fileHandle.createWritable();
+    const writableStream = await fileHandle.createWritable()
 
     // Write the Blob to the file
-    await writableStream.write(blob);
+    await writableStream.write(blob)
 
     // Close the stream
-    await writableStream.close();
+    await writableStream.close()
   }
 
-  function pngBlobFrom(imgBase64String) {
-    const match = imgBase64String.match(/^data:image\/(\w+);base64,/);
+  function pngBlobFrom (imgBase64String) {
+    const match = imgBase64String.match(/^data:image\/(\w+);base64,/)
 
     if (!match) {
-      throw new Error("Failed to decode base64-string.");
+      throw new Error('Failed to decode base64-string.')
     }
 
-    const imageSuffix = match[1];
-    const base64StringWithoutPrefix = imgBase64String.replace(/^data:image\/\w+;base64,/, '');
-    const uint8Array = base64ToUint8Array(base64StringWithoutPrefix);    
+    const imageSuffix = match[1]
+    const base64StringWithoutPrefix = imgBase64String.replace(/^data:image\/\w+;base64,/, '')
+    const uint8Array = base64ToUint8Array(base64StringWithoutPrefix)
 
-    const blob = new Blob([uint8Array], {type: `image/${imageSuffix}`});
+    const blob = new Blob([uint8Array], { type: `image/${imageSuffix}` })
 
     return blob
-
   }
 
-  function base64ToUint8Array(base64) {
-    var binaryString = atob(base64);
-    var bytes = new Uint8Array(binaryString.length);
-    for (var i = 0; i < binaryString.length; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
+  function base64ToUint8Array (base64) {
+    const binaryString = atob(base64)
+    const bytes = new Uint8Array(binaryString.length)
+    for (let i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i)
     }
-    return bytes;
+    return bytes
   }
 
-
-  async function exportPageCharacters() {
-
+  async function exportPageCharacters () {
     alert(characters?.length)
 
     const hFolder = await getBatchDownloadFolder()
 
     characters?.map(async (v2Character) => {
-
       const PNGUrl = exportCharacterAsPng(v2Character, v2Character.image as string)
       const exportName = getCharacterExportName('{{name}}@{{creator}}-spec{{spec}}', {
         name: v2Character.name,
@@ -369,9 +356,8 @@ const CharacterTable: FC = () => {
       const blob = pngBlobFrom(PNGUrl)
 
       await savePngFile(hFolder, `${exportName}.png`, blob)
-      // exportCharacterAsPng(char)            
+      // exportCharacterAsPng(char)
     })
-
 
     // try {
     //   const directoryHandle = await window.showDirectoryPicker();
@@ -401,8 +387,6 @@ const CharacterTable: FC = () => {
     // } catch (error) {
     //   alert(`${error.name}: ${error.message}`);
     // }
-
-
   }
 
   return (
@@ -427,11 +411,11 @@ const CharacterTable: FC = () => {
               creator_notes: false,
               system_prompt: false,
               post_history_instructions: false
-            },
+            }
           },
           pagination: {
-            paginationModel: paginationModel // Set desired initial page size
-          },
+            paginationModel // Set desired initial page size
+          }
         }}
         loading={isLoading}
         rows={characters ?? []}
@@ -460,7 +444,6 @@ const CharacterTable: FC = () => {
       <Button variant="contained" color="primary" onClick={async () => {
         alert('export chars on page')
         await exportPageCharacters()
-        return
       }}>
         Uploadxxxxxxxxxxxxx
       </Button>
