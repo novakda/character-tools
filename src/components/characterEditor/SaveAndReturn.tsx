@@ -1,8 +1,8 @@
-import Export from "@/components/characterEditor/exportOrSave/ExportCharacter";
-import SaveCharacter from "@/components/characterEditor/exportOrSave/SaveCharacter";
-import { Box, Typography } from "@mui/material";
-import { type FC } from "react";
-import SaveCharacterNow from "./exportOrSave/SaveCharacterNow";
+import Export from '@/components/characterEditor/exportOrSave/ExportCharacter'
+import SaveCharacter from '@/components/characterEditor/exportOrSave/SaveCharacter'
+import { Typography } from '@mui/material'
+import { type FC } from 'react'
+import SaveCharacterNow from './exportOrSave/SaveCharacterNow'
 
 const SaveAndReturn: FC = () => {
   return (
@@ -12,7 +12,7 @@ const SaveAndReturn: FC = () => {
       </Typography>
       <SaveCharacterNow/>
     </>
-  );
-};
+  )
+}
 
-export default SaveAndReturn;
+export default SaveAndReturn
