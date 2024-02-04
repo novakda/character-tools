@@ -333,7 +333,10 @@ const CharacterTable: FC = () => {
         version: v2Character.character_version
       })
       console.log(exportName)
-      // await savePngFile(hFolder, `${exportName}.png`, PNGUrl)      
+      // Create a dummy PNG Blob
+      const blob = new Blob(['Hello, world!'], {type: 'image/png'});
+
+      await savePngFile(hFolder, `${exportName}.png`, blob)      
       // exportCharacterAsPng(char)            
     })
 
