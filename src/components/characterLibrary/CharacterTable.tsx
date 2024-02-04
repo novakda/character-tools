@@ -291,36 +291,63 @@ const CharacterTable: FC = () => {
   async function getBatchDownloadFolder(): Promise<any> {
     const directoryHandle = await window.showDirectoryPicker();
     console.log(directoryHandle)
-    
+
     // Check if permission to write was granted
     const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' });
     if (permissions !== 'granted') {
       throw new Error('Permission to write to directory not granted');
     }
-    
+
     return directoryHandle
 
   }
 
   async function savePngFile(dirHandle, fileName, blob) {
-     // Create a new file in the selected directory
-     const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
+    // Create a new file in the selected directory
+    const fileHandle = await dirHandle.getFileHandle(fileName, { create: true });
 
-     // Create a writable stream for the new file
-     const writableStream = await fileHandle.createWritable();
- 
-     // Write the Blob to the file
-     await writableStream.write(blob);
- 
-     // Close the stream
-     await writableStream.close();
+    // Create a writable stream for the new file
+    const writableStream = await fileHandle.createWritable();
+
+    // Write the Blob to the file
+    await writableStream.write(blob);
+
+    // Close the stream
+    await writableStream.close();
   }
+
+  function pngBlobFrom(imgBase64String) {
+    const match = imgBase64String.match(/^data:image\/(\w+);base64,/);
+
+    if (!match) {
+      throw new Error("Failed to decode base64-string.");
+    }
+
+    const imageSuffix = match[1];
+    const base64StringWithoutPrefix = imgBase64String.replace(/^data:image\/\w+;base64,/, '');
+    const uint8Array = base64ToUint8Array(base64StringWithoutPrefix);    
+
+    const blob = new Blob([uint8Array], {type: `image/${imageSuffix}`});
+
+    return blob
+
+  }
+
+  function base64ToUint8Array(base64) {
+    var binaryString = atob(base64);
+    var bytes = new Uint8Array(binaryString.length);
+    for (var i = 0; i < binaryString.length; i++) {
+      bytes[i] = binaryString.charCodeAt(i);
+    }
+    return bytes;
+  }
+
 
   async function exportPageCharacters() {
 
     alert(characters?.length)
 
-    const hFolder = await getBatchDownloadFolder() 
+    const hFolder = await getBatchDownloadFolder()
 
     characters?.map(async (v2Character) => {
 
@@ -334,9 +361,14 @@ const CharacterTable: FC = () => {
       })
       console.log(exportName)
       // Create a dummy PNG Blob
-      const blob = new Blob(['Hello, world!'], {type: 'image/png'});
+      // const blob = new Blob(['Hello, world!'], {type: 'image/png'});
 
-      await savePngFile(hFolder, `${exportName}.png`, blob)      
+      // ref: https://stackoverflow.com/a/62677424
+      // console.log('PNGURL', pngurl)
+      // console.log('BLOB',blob)
+      const blob = pngBlobFrom(PNGUrl)
+
+      await savePngFile(hFolder, `${exportName}.png`, blob)
       // exportCharacterAsPng(char)            
     })
 
@@ -347,7 +379,7 @@ const CharacterTable: FC = () => {
     //   // Create a dummy PNG Blob
     //   const blob = new Blob(['Hello, world!'], { type: 'image/png' });
     //   // Prompt user to select a directory
-    
+
     //   // Check if permission to write was granted
     //   const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' });
     //   if (permissions !== 'granted') {
