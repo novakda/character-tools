@@ -4,6 +4,8 @@ import CharacterMetadata from '@/components/characterEditor/CharacterMetadata'
 import ExportOrSave from '@/components/characterEditor/ExportOrSave'
 import ImportOrCreate from '@/components/characterEditor/ImportOrCreate'
 import PromptEngingeering from '@/components/characterEditor/PromptEngingeering'
+import SaveAndReturn from '@/components/characterEditor/SaveAndReturn'
+
 import { faCircleInfo, faFileExport, faFileImport, faUserCog, faUserGear } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { TabContext, TabList, TabPanel } from '@mui/lab'
@@ -53,6 +55,8 @@ const CharacterEditorPage: FC = () => {
             <Tab icon={<FontAwesomeIcon icon={faCircleInfo}/>} label="Character Metadata" value="character-metadata" />
             <Tab icon={<FontAwesomeIcon icon={faUserGear}/>} label="Prompt Engineering" value="prompt-engineering" />
             <Tab icon={<FontAwesomeIcon icon={faFileExport}/>} label="Export or Save" value="export-or-save" />
+            <Tab icon={<FontAwesomeIcon icon={faFileExport}/>} label="Save" value="save-and-return" />
+
           </TabList>
         </Box>
         <div
@@ -74,6 +78,9 @@ const CharacterEditorPage: FC = () => {
           </TabPanel>
           <TabPanel value="export-or-save">
             <ExportOrSave />
+          </TabPanel>
+          <TabPanel value="save-and-return">
+            <SaveAndReturn />
           </TabPanel>
         </div>
       </TabContext>

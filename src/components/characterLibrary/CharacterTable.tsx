@@ -501,7 +501,6 @@ const CharacterTable: FC = () => {
   }
 
   async function exportPageCharacters () {
-    alert(characters?.length)
 
     const hFolder = await getBatchDownloadFolder()
 
@@ -512,7 +511,7 @@ const CharacterTable: FC = () => {
         row.image as string
       )
       const exportName = getCharacterExportName(
-        '{{name}}@{{creator}}-spec{{spec}}',
+        '{{name}}@{{creator}}_{{id}}-spec{{spec}}',
         {
           name: row.name,
           spec: 'V2',
@@ -583,7 +582,6 @@ const CharacterTable: FC = () => {
         variant="contained"
         color="primary"
         onClick={async () => {
-          alert('export chars on page')
           await exportPageCharacters()
         }}
       >
