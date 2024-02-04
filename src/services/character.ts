@@ -45,6 +45,17 @@ export const deleteAllCharacters = async (): Promise<void> => {
   await dataBase.characters.clear()
 }
 
+
+
+export const exprtCharactersLoop = async (): Promise<object> => {
+  const blob = await dataBase.export({
+    filter (table) {
+      return table === 'characters'
+    }
+  })
+  return blob
+}
+
 export const exportCharacterCollection = async (): Promise<Blob> => {
   const blob = await dataBase.export({
     filter (table) {

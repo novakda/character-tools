@@ -1,6 +1,6 @@
 import Drop from '@/components/ui/Drop'
 import useAppDispatch from '@/hooks/useAppDispatch'
-import { deleteAllCharacters, exportCharacterCollection, importCharacterCollection } from '@/services/character'
+import { deleteAllCharacters, exportCharacterCollection, importCharacterCollection, getAllCharacters } from '@/services/character'
 import { setAlert, setDialog } from '@/state/feedbackSlice'
 import { faFileImport } from '@fortawesome/free-solid-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -71,7 +71,24 @@ const ManageLibrary: FC = () => {
       <Button
         type="button"
         variant="contained"
-        onClick={() => {
+        onClick={async () => {
+
+          if( !("showSaveFilePicker" in window) ) {
+            throw new Error( "unsupported browser" );
+          }
+          
+          const handle = await showSaveFilePicker();
+          const filestream = await handle.createWritable();
+          const writer = await filestream.getWriter();
+          const chars = await getAllCharacters()
+
+          alert(chars.length)
+
+          chars.map(async (char) => await writer.write(JSON.stringify(char)))        
+          
+          writer.close();
+          
+          return;
           exportCharacterCollection()
             .then((Blob) => {
               const url = window.URL.createObjectURL(Blob)
@@ -80,15 +97,16 @@ const ManageLibrary: FC = () => {
               a.download = 'character-library.json'
               a.click()
             })
-            .catch((error) => {
-              dispatch(setAlert({
-                title: 'Error while exporting library',
-                severity: 'error',
-                message: error.message
-              }))
-            })
+            // .catch((error) => {
+            //   dispatch(setAlert({
+            //     title: 'Error while exporting library',
+            //     severity: 'error',
+            //     message: error.message
+            //   }))
+            // })
         }
         }
+
       >
         Export library
       </Button>
