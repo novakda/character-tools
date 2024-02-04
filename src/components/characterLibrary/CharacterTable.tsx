@@ -311,11 +311,6 @@ const CharacterTable: FC = () => {
           <IconButton
             onClick={() => {
               const selectedIDs = new Set(rowSelectionModel)
-              // you can call an API to delete the selected IDs
-              // and get the latest results after the deletion
-              // then call setRows() to update the data locally here
-              // setRows((r) => r.filter((x) => !selectedIDs.has(x.id)));
-              alert(Array.from(selectedIDs))
               deleteCharacterMulti(Array.from(selectedIDs))
             }}
           >
@@ -529,44 +524,10 @@ const CharacterTable: FC = () => {
       console.log(exportName)
       // Create a dummy PNG Blob
       // const blob = new Blob(['Hello, world!'], {type: 'image/png'});
-
-      // ref: https://stackoverflow.com/a/62677424
-      // console.log('PNGURL', pngurl)
-      // console.log('BLOB',blob)
       const blob = pngBlobFrom(PNGUrl)
 
       await savePngFile(hFolder, `${exportName}.png`, blob)
-      // exportCharacterAsPng(char)
     })
-
-    // try {
-    //   const directoryHandle = await window.showDirectoryPicker();
-    //   console.log(directoryHandle)
-    //   // Create a dummy PNG Blob
-    //   const blob = new Blob(['Hello, world!'], { type: 'image/png' });
-    //   // Prompt user to select a directory
-
-    //   // Check if permission to write was granted
-    //   const permissions = await directoryHandle.requestPermission({ mode: 'readwrite' });
-    //   if (permissions !== 'granted') {
-    //     throw new Error('Permission to write to directory not granted');
-    //   }
-
-    //   // Create a new file in the selected directory
-    //   const fileHandle = await directoryHandle.getFileHandle('foobar.png', { create: true });
-
-    //   // Create a writable stream for the new file
-    //   const writableStream = await fileHandle.createWritable();
-
-    //   // Write the Blob to the file
-    //   await writableStream.write(blob);
-
-    //   // Close the stream
-    //   await writableStream.close();
-
-    // } catch (error) {
-    //   alert(`${error.name}: ${error.message}`);
-    // }
   }
 
   return (
