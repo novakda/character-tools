@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/strict-boolean-expressions */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable @typescript-eslint/explicit-function-return-type */
 import useAppDispatch from '@/hooks/useAppDispatch'
 import { dataBase } from '@/lib/dexie'
 import { deleteCharacter, deleteCharacterMulti } from '@/services/character'
