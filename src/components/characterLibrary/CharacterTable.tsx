@@ -211,7 +211,7 @@ const CharacterTable: FC = () => {
     { field: 'actions', type: 'actions', hideable: false, sortable: false, minWidth: 120, getActions: renderActions, filterable: false },
     { field: 'id', headerName: 'ID', width: 150, sortable: false, filterable: false },
     {
-      field: "delete",
+      field: 'delete',
       width: 75,
       sortable: false,
       disableColumnMenu: true,
