@@ -403,6 +403,25 @@ const CharacterTable: FC = () => {
     }
   ]
 
+  // ref: https://stackoverflow.com/a/63372663
+  //* Convert resBlob to base64
+  const blobToData = async (blob: Blob) => {
+    return await new Promise((resolve) => {
+      const reader = new FileReader()
+      reader.onloadend = () => {
+        resolve(reader.result)
+      }
+      reader.readAsDataURL(blob)
+    })
+  }
+
+  const getDefaultPng = async () => {
+    const response = await fetch('user-default.png')
+    const blob = await response.blob()
+    const data = await blobToData(blob)
+    return data
+  }
+
   const handleDownload = (url: string, filename: string): void => {
     const link = document.createElement('a')
     link.href = url
@@ -501,15 +520,14 @@ const CharacterTable: FC = () => {
   }
 
   async function exportPageCharacters () {
-
+    const defaultAvatarPng = await getDefaultPng()
+    console.log(defaultAvatarPng)
+    return
     const hFolder = await getBatchDownloadFolder()
 
     characters?.map(async (row) => {
       const v2Character = await characterEditorStateToV2(row)
-      const PNGUrl = exportCharacterAsPng(
-        v2Character,
-        row.image as string
-      )
+      const PNGUrl = exportCharacterAsPng(v2Character, row.image as string)
       const exportName = getCharacterExportName(
         '{{name}}@{{creator}}_{{id}}-spec{{spec}}',
         {
